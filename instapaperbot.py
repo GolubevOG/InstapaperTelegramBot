@@ -22,7 +22,7 @@ def find_url(text):
     return res
 
 
-def echo (bot, update):
+def conversation (bot, update):
     message_text = update['message']['text']
     clear_url = find_url(message_text)
     if len(clear_url) != 0:
@@ -52,12 +52,12 @@ def main ():
     updater = Updater (token = TOKEN)
     dispatcher = updater.dispatcher
     start_handler = CommandHandler('start', start)
-    echo_handler = MessageHandler (Filters.text, echo)
+    conversation_handler = MessageHandler (Filters.text, conversation)
     forward_handler = MessageHandler(Filters.forwarded,forward_to_instapapper)
     unknown_handler = MessageHandler(Filters.command, unknown)
 
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(echo_handler)
+    dispatcher.add_handler(conversation_handler)
     dispatcher.add_handler(unknown_handler)
     dispatcher.add_handler(forward_handler)
     dispatcher.add_handler(unknown_handler)
