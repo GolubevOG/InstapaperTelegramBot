@@ -2,6 +2,8 @@
 TOKEN.txt
 #simple log
 mylog.txt
+#config file for testing time
+config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
