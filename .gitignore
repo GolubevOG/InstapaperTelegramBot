@@ -1,4 +1,7 @@
-#TOKEN.txt
+#TOKEN
+TOKEN.txt
+#simple log
+mylog.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
