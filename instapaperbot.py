@@ -1,9 +1,9 @@
 import logging
-import re
+import re #searching url in message
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
-import instapaper
+import instapaper #add link to instapaper
 import config #временно загружаю логин-пароль ль instapaper
 
 def log_message(log_info):
@@ -15,8 +15,8 @@ def log_message(log_info):
     logging.info(debug_info)
 
 def start (bot, update):
-    bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello')
-    print ('yes')
+    bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello, new user!')
+    print ('New user')
 
 def add_url_to_instapaper(chat_id,url):
     username = config.user
@@ -27,7 +27,7 @@ def add_url_to_instapaper(chat_id,url):
         print ("can't add link:{} from id:{}".format(url,chat_id))
 
 def find_url(text):
-    pattern = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    pattern = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]|[А-Яа-я]))+')
     res = pattern.findall(text)
     return res
 
