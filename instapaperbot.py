@@ -47,9 +47,7 @@ def unknown(bot,update):
     bot.sendMessage(chat_id = update.message.chat_id,text = "I didn't understand that command.")
 
 def main ():
-    with open ('TOKEN.txt', encoding='utf8') as f:
-        a = f.read()
-        TOKEN = a.replace('\n','')
+    TOKEN = config.TOKEN
     #простое логгирование в файл
     logging.basicConfig(filename='info.log',level = logging.INFO,format='%(asctime)s - %(message)s')
     updater = Updater (token = TOKEN)
