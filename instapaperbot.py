@@ -41,12 +41,24 @@ def conversation (bot, update):
     clear_url = find_url(message_text)
     if len(clear_url) != 0:
         print ('url=',clear_url)
-        for single_url in clear_url:
-            add_url_to_instapaper(update.message.chat_id,single_url)
-        bot.sendMessage(chat_id = update.message.chat_id,text = 'Thanks for the link, I soon learned to handle it')
+        if instapaper.authenticate(config.user,config.password):
+            for single_url in clear_url:
+                add_url_to_instapaper(update.message.chat_id,single_url)
+            bot.sendMessage(chat_id = update.message.chat_id,text = "Ok, link have been added")
+        else:
+            bot.sendMessage(chat_id = update.message.chat_id,text = "Thanks for the link, I soon learned to handle it,\n, I don't you your login password ")
+
     else:
-        bot.sendMessage(chat_id = update.message.chat_id,text = update.message.text)
+        message = 'excuse me, while I support the bad dialogue, my main function is to send notes and links to Instapaper. until I do it badly, but soon learn, if you are willing to help the creator, in the description section have my contacts'
+        bot.sendMessage(chat_id = update.message.chat_id,text = message)
     log_message(update)
+
+#обработка всех остальных посылок, которые не текст
+def reply_for_no_text_message(bot, update):
+    bot.sendMessage(chat_id = update.message.chat_id,text = 'Sorry, I understand only text')
+    log_message(update)
+    logging.info('it was no text')
+
 
 #реакция на неизвестные команды
 def unknown(bot,update):
@@ -63,10 +75,12 @@ def main ():
     start_handler = CommandHandler('start', start)
     conversation_handler = MessageHandler (Filters.text, conversation)
     unknown_handler = MessageHandler(Filters.command, unknown)
+    reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
     #dispatchers
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(conversation_handler)
     dispatcher.add_handler(unknown_handler)
+    dispatcher.add_handler(reply_for_no_text_message_handler)
     #updater
     updater.start_polling()
 

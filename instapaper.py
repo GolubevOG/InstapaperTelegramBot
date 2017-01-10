@@ -18,22 +18,18 @@ def check_request_status(response_code):
 
 def authenticate(username, password):
     auth_url = 'https://www.instapaper.com/api/authenticate'
-    authenticated = False
-
-    while not authenticated:
-        auth_payload = {'username': username,
+    auth_payload = {'username': username,
                     'password': password}
-        auth_request = requests.get(auth_url, params=auth_payload)
-        check_request_status(str(auth_request.status_code))
-        if auth_request.text == '200':
-            authenticated = True
-            return authenticated
-        else:
-            username = input('please, retype your LOGIN: ')
-            password = input('please, retype your PASSWORD: ')
-
+    auth_request = requests.get(auth_url, params=auth_payload)
+    #print status
+    check_request_status(str(auth_request.status_code))
+    if auth_request.text == '200':
+        return True
+    else:
+        return False
 
 def add_urls(username,password,url):
+    #возможно стоит убрать проверку на корректность
     if authenticate(username,password):
         add_payload = {'username': username,
                        'password': password,
@@ -41,5 +37,3 @@ def add_urls(username,password,url):
         add_url = 'https://www.instapaper.com/api/add'
         add_request = requests.get(add_url, params=add_payload)
         check_request_status (str(add_request.status_code))
-    else:
-        print('please LOGIN')
