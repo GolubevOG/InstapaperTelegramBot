@@ -45,11 +45,12 @@ def conversation (bot, update):
             for single_url in clear_url:
                 add_url_to_instapaper(update.message.chat_id,single_url)
             bot.sendMessage(chat_id = update.message.chat_id,text = "Ok, link have been added")
+            message_text = message_text.split()
+            bot.sendMessage(chat_id = update.message.chat_id,text = ' '.join(message_text[:10]))
         else:
             bot.sendMessage(chat_id = update.message.chat_id,text = "Thanks for the link, I soon learned to handle it,\n, I don't you your login password ")
-
     else:
-        message = 'excuse me, while I support the bad dialogue, my main function is to send notes and links to Instapaper. until I do it badly, but soon learn, if you are willing to help the creator, in the description section have my contacts'
+        message = 'Sorry, I understand only text with links'
         bot.sendMessage(chat_id = update.message.chat_id,text = message)
     log_message(update)
 
