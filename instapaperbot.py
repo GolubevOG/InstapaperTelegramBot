@@ -44,9 +44,9 @@ def conversation (bot, update):
         if instapaper.authenticate(config.user,config.password):
             for single_url in clear_url:
                 add_url_to_instapaper(update.message.chat_id,single_url)
-            bot.sendMessage(chat_id = update.message.chat_id,text = "Ok, link have been added")
             message_text = message_text.split()
-            bot.sendMessage(chat_id = update.message.chat_id,text = ' '.join(message_text[:10]))
+            message_text = "Ok, link have been added,\n" + ' '.join(message_text[:7])
+            bot.sendMessage(chat_id = update.message.chat_id,text = message_text))
         else:
             bot.sendMessage(chat_id = update.message.chat_id,text = "Thanks for the link, I soon learned to handle it,\n, I don't you your login password ")
     else:
