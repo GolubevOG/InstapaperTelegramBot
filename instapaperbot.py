@@ -46,7 +46,7 @@ def conversation (bot, update):
                 add_url_to_instapaper(update.message.chat_id,single_url)
             message_text = message_text.split()
             message_text = "Ok, link have been added,\n" + ' '.join(message_text[:7])
-            bot.sendMessage(chat_id = update.message.chat_id,text = message_text))
+            bot.sendMessage(chat_id = update.message.chat_id,text = message_text)
         else:
             bot.sendMessage(chat_id = update.message.chat_id,text = "Thanks for the link, I soon learned to handle it,\n, I don't you your login password ")
     else:

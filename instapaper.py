@@ -2,6 +2,7 @@
 https://www.instapaper.com/api/simple
 """
 import requests
+import logging
 
 def check_request_status(response_code):
     responses = {'200': 'Login successful!',
@@ -30,10 +31,21 @@ def authenticate(username, password):
 
 def add_urls(username,password,url):
     #возможно стоит убрать проверку на корректность
-    if authenticate(username,password):
-        add_payload = {'username': username,
-                       'password': password,
-                       'url': url}
-        add_url = 'https://www.instapaper.com/api/add'
-        add_request = requests.get(add_url, params=add_payload)
-        check_request_status (str(add_request.status_code))
+    try:
+        if authenticate(username,password):
+          add_payload = {'username': username,
+                         'password': password,
+                         'url': url}
+          add_url = 'https://www.instapaper.com/api/add'
+          add_request = requests.get(add_url, params=add_payload)
+          check_request_status (str(add_request.status_code))
+    except Exceptions:
+        print ('error in adding link')
+        logging.error('error in adding link')
+
+def main():
+    logging.basicConfig(filename='info.log',level = logging.ERROR,format='%(asctime)s - %(message)s')
+
+
+if __name__ == '__main__':
+    main()
