@@ -6,6 +6,7 @@ from telegram.ext import MessageHandler, Filters
 import instapaper #add link to instapaper
 import config #временно загружаю логин-пароль ль instapaper
 
+
 #логирование всех данных
 def log_message(log_info):
     user_id = log_info['message']['chat']['id']
@@ -14,10 +15,12 @@ def log_message(log_info):
     debug_info = 'id:{} user:{} text:"{}"'.format(user_id,user_username,user_text)
     logging.info(debug_info)
 
+
 #реакция при нажатии команды Start
 def start (bot, update):
     bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello, new user!')
     print ('New user')
+
 
 #добавлении адреса в Instapaper конкретного человека
 #пока можно установить собственный логин-пароль и постить туда адреса
@@ -29,11 +32,13 @@ def add_url_to_instapaper(chat_id,url):
     else:
         print ("can't add link:{} from id:{}".format(url,chat_id))
 
+
 #регулярное выражение для поиска URL в сообщении
 def find_url(text):
     pattern = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]|[А-Яа-я]))+')
     res = pattern.findall(text)
     return res
+
 
 #основная функция по общению с пользователем
 def conversation (bot, update):
@@ -45,7 +50,8 @@ def conversation (bot, update):
             for single_url in clear_url:
                 add_url_to_instapaper(update.message.chat_id,single_url)
             message_text = message_text.split()
-            message_text = "Ok, link have been added,\n" + ' '.join(message_text[:7])
+            index_of_first_url_in_text = message_text.index(clear_url[0])
+            message_text = "Ok, link have been added,\nText: " + ' '.join(message_text[:index_of_first_url_in_text])
             bot.sendMessage(chat_id = update.message.chat_id,text = message_text)
         else:
             bot.sendMessage(chat_id = update.message.chat_id,text = "Thanks for the link, I soon learned to handle it,\n, I don't you your login password ")
@@ -53,6 +59,7 @@ def conversation (bot, update):
         message = 'Sorry, I understand only text with links'
         bot.sendMessage(chat_id = update.message.chat_id,text = message)
     log_message(update)
+
 
 #обработка всех остальных посылок, которые не текст
 def reply_for_no_text_message(bot, update):
