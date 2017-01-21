@@ -17,10 +17,23 @@ def log_message(log_info):
 
 
 #реакция при нажатии команды Start
+#тут нужно добавить добавление пользователя в базу пользователей
 def start (bot, update):
     bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello, new user!')
-    print ('New user')
+    log_message(update)
+    logging.info('!!New User!')
 
+#реакия при нажатии команды info
+def info_message(bot, update):
+    bot.sendMessage(chat_id = update.message.chat_id, text = '''bot sends a link to your Instapaper.
+But you have to login.
+Please use command "login"''')
+
+#реакия при нажатии команды login
+#тут нужна авторизация
+def take_user_login_password(bot, update):
+    bot.sendMessage(chat_id = update.message.chat_id, text = 'please, write your login - password')
+    bot.sendMessage(chat_id = update.message.chat_id, text = 'Sorry, This function is not available at the moment')
 
 #добавлении адреса в Instapaper конкретного человека
 #пока можно установить собственный логин-пароль и постить туда адреса
@@ -81,11 +94,16 @@ def main ():
     dispatcher = updater.dispatcher
     #handlers
     start_handler = CommandHandler('start', start)
+    info_handler = CommandHandler('info',info_message)
+    login_handler = CommandHandler('login',take_user_login_password)
     conversation_handler = MessageHandler (Filters.text, conversation)
     unknown_handler = MessageHandler(Filters.command, unknown)
     reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
+
     #dispatchers
     dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(info_handler)
+    dispatcher.add_handler(login_handler)
     dispatcher.add_handler(conversation_handler)
     dispatcher.add_handler(unknown_handler)
     dispatcher.add_handler(reply_for_no_text_message_handler)
