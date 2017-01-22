@@ -32,6 +32,7 @@ Please use command "login"''')
 #реакия при нажатии команды login
 #тут нужна авторизация
 def take_user_login_password(bot, update):
+    print ('login have been type')
     bot.sendMessage(chat_id = update.message.chat_id, text = 'please, write your login - password')
     bot.sendMessage(chat_id = update.message.chat_id, text = 'Sorry, This function is not available at the moment')
 
