@@ -73,6 +73,7 @@ def conversation (bot, update):
         message = 'Sorry, I understand only text with links'
         bot.sendMessage(chat_id = update.message.chat_id,text = message)
     log_message(update)
+    print (update)
 
 
 #обработка всех остальных посылок, которые не текст

@@ -1,9 +1,14 @@
 #TOKEN
 TOKEN.txt
+
 #simple log
 mylog.txt
+
 #config file for testing time
 config.py
+
+#my db
+user_information.sqlite
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
