@@ -21,7 +21,7 @@ def log_message(log_info):
 def start (bot, update):
     bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello, new user!')
     log_message(update)
-    logging.info('!!New User!')
+    logging.info('\n!!New User!!\n')
 
 #реакия при нажатии команды info
 def info_message(bot, update):
