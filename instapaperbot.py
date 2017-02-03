@@ -4,7 +4,8 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 import instapaper #add link to instapaper
-import config #временно загружаю логин-пароль ль instapaper
+import config #временно загружаю логин-пароль для instapaper
+from db import db_session, User #подключаю базу данных
 
 
 #логирование всех данных
@@ -15,11 +16,29 @@ def log_message(log_info):
     debug_info = 'id:{} user:{} text:"{}"'.format(user_id,user_username,user_text)
     logging.info(debug_info)
 
+def add_new_user_to_db(user_info):
+    user_id = user_info['message']['chat']['id']
+    user_username = user_info['message']['chat']['username']
+    new_user = User()
+    
+    x = new_user.query.filter(User.user_id.like(user_id)).first()
+    print (x)
+    if x == None:
+        new_user.user_id = user_id
+        new_user.user_nickname = user_username
+        db_session.add (new_user)
+        db_session.commit()
+        bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello, new user!')
+    else:
+        new_start_message = 'Hello ' + user_username
+        bot.sendMessage(chat_id = update.message.chat_id, text = new_start_message)
+
+
 
 #реакция при нажатии команды Start
 #тут нужно добавить добавление пользователя в базу пользователей
 def start (bot, update):
-    bot.sendMessage(chat_id = update.message.chat_id, text = 'Hello, new user!')
+    add_new_user_to_db(update)
     log_message(update)
     logging.info('\n!!New User!!\n')
 

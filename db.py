@@ -14,35 +14,36 @@ class User(Base):
     __tablename__ = 'users_settings_db'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, unique = True)
-    user_nikname = Column(String(50))
+    user_nickname = Column(String(50))
     user_first_name = Column(String(50))
     user_last_name = Column(String(50))
     email = Column(String(120))
     passwd = Column(String(120))
-    #login_activation_flag = Column(Boolean, default=False)
-    #date_of_activation = Column(String(50))
+    status = Column(Integer)
+    date_of_activation = Column(String(50))
 
 
-    def __init__(self, user_id = None, user_nikname = None, 
+    def __init__(self, user_id = None, user_nickname = None, 
                     user_first_name=None, user_last_name=None, 
-                    passwd = None, email=None):
+                    passwd = None, email=None, status = None, date_of_activation = None):
         self.user_id = user_id
-        self.user_nikname = user_nikname
+        self.user_nickname = user_nickname
         self.user_first_name = user_first_name
         self.user_last_name = user_last_name
         self.email = email
         self.passwd = passwd
-
-    
+        self.status = status
+        self.date_of_activation = date_of_activation
+      
     def add_login_passwd(self, passwd = None, email=None):
         self.email = email
         self.passwd = passwd
         db_session.add(self)
         db_session.commit()
-
+      
 
     def __repr__(self):
-        return '<User {} {} {}>'.format(self.user_id, self.user_first_name, self.user_last_name)
+        return '<User {} {} {} {}>'.format(self.user_id, self.user_nickname, self.user_first_name, self.user_last_name)
 
 if __name__ == '__main__':
     Base.metadata.create_all(bind = engine)
