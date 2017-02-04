@@ -16,14 +16,14 @@ def log_message(log_info):
     debug_info = 'id:{} user:{} text:"{}"'.format(user_id,user_username,user_text)
     logging.info(debug_info)
 
+#пользователь заноситься в базу данных, при активации команды START
 def add_new_user_to_db(user_info):
     user_id = user_info['message']['chat']['id']
     user_username = user_info['message']['chat']['username']
     new_user = User()
     
-    x = new_user.query.filter(User.user_id.like(user_id)).first()
-    print (x)
-    if x == None:
+    user_in_db = new_user.query.filter(User.user_id.like(user_id)).first()
+    if user_in_db == None:
         new_user.user_id = user_id
         new_user.user_nickname = user_username
         db_session.add (new_user)
@@ -78,7 +78,7 @@ def conversation (bot, update):
     message_text = update['message']['text']
     clear_url = find_url(message_text)
     if len(clear_url) != 0:
-        print ('url=',clear_url)
+        #print ('url=',clear_url)
         if instapaper.authenticate(config.user,config.password):
             for single_url in clear_url:
                 add_url_to_instapaper(update.message.chat_id,single_url)
@@ -92,7 +92,7 @@ def conversation (bot, update):
         message = 'Sorry, I understand only text with links'
         bot.sendMessage(chat_id = update.message.chat_id,text = message)
     log_message(update)
-    print (update)
+    
 
 
 #обработка всех остальных посылок, которые не текст
