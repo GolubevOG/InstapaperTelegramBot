@@ -3,9 +3,10 @@ import re #searching url in message
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
-import instapaper #add link to instapaper
+import instapaper # should be installed as pip install git+https://github.com/rsgalloway/instapaper
 import config #временно загружаю логин-пароль для instapaper
 from db import db_session, User #подключаю базу данных
+import urllib.parse
 
 
 #логирование всех данных
@@ -48,12 +49,43 @@ def info_message(bot, update):
 But you have to login.
 Please use command "login"''')
 
-#реакия при нажатии команды login
-#тут нужна авторизация
-def take_user_login_password(bot, update):
-    print ('login have been type')
-    bot.sendMessage(chat_id = update.message.chat_id, text = 'please, write your login - password')
-    bot.sendMessage(chat_id = update.message.chat_id, text = 'Sorry, This function is not available at the moment')
+# logging out
+# TODO3: doesn't work. WHY?
+def logout(bot, update, user_data):
+    user_data = {0: 0}
+    bot.sendMessage(chat_id = update.message.chat_id, text = 'Logged out!')
+
+# authentication
+# TODO4: passwords should not be saved in chat history! https://github.com/yagop/node-telegram-bot-api/issues/143
+def take_user_login_password(bot, update, args, user_data):
+    try:
+        if user_data.get('token'):
+            msg = 'Already logged in as %s. Use /logout first if you want to change user.' % user_data['username']
+        else:
+            # TODO1: check if we have token for update.message.from_user.id (i.e. telegram id of current user) (see TODO2)
+            # check is some credentials are passed
+            if len(args) != 2:
+                msg = 'Please enter credentials as "/login username password". We don\'t save them'
+            else:
+                I = instapaper.Instapaper(config.oauth_token, config.oauth_secret)
+                try:
+                    # logging in
+                    I.login(args[0], args[1])
+                    # TODO2: save token to DB
+                    user_data['token'] = dict(urllib.parse.parse_qsl(str(I.token)))
+                    user_data['login'] = I
+
+                    #getting user data
+                    user = I.user().get('username')
+                    user_data['username'] = user
+                    msg = 'Logged in as %s!' % user
+                except KeyError:
+                    msg = 'Incorrect credentials!'
+
+    except Exception as e:
+        msg = 'There was an error: %s' % str(e)
+
+    bot.sendMessage(chat_id = update.message.chat_id, text = msg)
 
 #добавлении адреса в Instapaper конкретного человека
 #пока можно установить собственный логин-пароль и постить туда адреса
@@ -115,8 +147,9 @@ def main ():
     dispatcher = updater.dispatcher
     #handlers
     start_handler = CommandHandler('start', start)
-    info_handler = CommandHandler('info',info_message)
-    login_handler = CommandHandler('login',take_user_login_password)
+    info_handler = CommandHandler('info', info_message)
+    login_handler = CommandHandler('login', take_user_login_password, pass_args=True, pass_user_data=True)
+    logout_handler = CommandHandler('logout', logout, pass_user_data=True)
     conversation_handler = MessageHandler (Filters.text, conversation)
     unknown_handler = MessageHandler(Filters.command, unknown)
     reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
@@ -125,6 +158,7 @@ def main ():
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(info_handler)
     dispatcher.add_handler(login_handler)
+    dispatcher.add_handler(logout_handler)
     dispatcher.add_handler(conversation_handler)
     dispatcher.add_handler(unknown_handler)
     dispatcher.add_handler(reply_for_no_text_message_handler)
