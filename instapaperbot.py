@@ -7,9 +7,11 @@ import instapaper  # should be installed as pip install git+https://github.com/r
 import config  # временно загружаю логин-пароль для instapaper
 from db import db_session, User  # подключаю базу данных
 import urllib.parse
-
+import instawrapper as iw
 
 # логирование всех данных
+
+
 def log_message(log_info):
     user_id = log_info['message']['chat']['id']
     user_username = log_info['message']['chat']['username']
@@ -68,30 +70,12 @@ def logout(bot, update, user_data):
 # TODO4: passwords should not be saved in chat history! https://github.com/yagop/node-telegram-bot-api/issues/143
 
 
-def take_user_login_password(bot, update, args, user_data):
+def login(bot, update, args, user_data):
     try:
-        if user_data.get('token'):
-            msg = 'Already logged in as %s. Use /logout first if you want to change user.' % user_data['username']
-        else:
-            # TODO1: check if we have token for update.message.from_user.id (i.e. telegram id of current user) (see TODO2)
-            # check is some credentials are passed
-            if len(args) != 2:
-                msg = 'Please enter credentials as "/login username password". We don\'t save them'
-            else:
-                I = instapaper.Instapaper(config.oauth_token, config.oauth_secret)
-                try:
-                    # logging in
-                    I.login(args[0], args[1])
-                    # TODO2: save token to DB
-                    user_data['token'] = dict(urllib.parse.parse_qsl(str(I.token)))
-                    user_data['login'] = I
+        if user_data.get('wrapper', '*') == '*':
+            user_data['wrapper'] = iw.Ipaper()
 
-                    # getting user data
-                    user = I.user().get('username')
-                    user_data['username'] = user
-                    msg = 'Logged in as %s!' % user
-                except KeyError:
-                    msg = 'Incorrect credentials!'
+        msg = user_data['wrapper'].login(update.message.from_user.id, args)
 
     except Exception as e:
         msg = 'There was an error: %s' % str(e)
@@ -102,13 +86,14 @@ def take_user_login_password(bot, update, args, user_data):
 # пока можно установить собственный логин-пароль и постить туда адреса
 
 
-def add_url_to_instapaper(url, ipaper):
-    try:
-        b = instapaper.Bookmark(ipaper, {"url": url})
-        b.save()
-        msg = 'Saved!'
-    except Exception as e:
-        msg = str(e)
+def bookmark(url, user_data):
+    if user_data.get('wrapper', '*') != '*':
+        try:
+            b = instapaper.Bookmark(user_data.get('wrapper').instapaper, {"url": url})
+            b.save()
+            msg = 'Saved!'
+        except Exception as e:
+            msg = str(e)
 
     return msg
 
@@ -125,11 +110,10 @@ def conversation(bot, update, user_data):
     message_text = update['message']['text']
     clear_url = find_url(message_text)
     if len(clear_url) != 0:
-        # print ('url=',clear_url)
         if 1 == 1:  # TODO: check if authenticated
             for single_url in clear_url:
                 # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
-                msg = add_url_to_instapaper(single_url, user_data.get('login'))
+                msg = bookmark(single_url, user_data)
         else:
             msg = "PLease login first (/login command). But thanks for the link anyway :)"
     else:
@@ -164,7 +148,7 @@ def main():
     # handlers
     start_handler = CommandHandler('start', start)
     info_handler = CommandHandler('info', info_message)
-    login_handler = CommandHandler('login', take_user_login_password, pass_args=True, pass_user_data=True)
+    login_handler = CommandHandler('login', login, pass_args=True, pass_user_data=True)
     logout_handler = CommandHandler('logout', logout, pass_user_data=True)
     conversation_handler = MessageHandler(Filters.text, conversation, pass_user_data=True)
     unknown_handler = MessageHandler(Filters.command, unknown)
