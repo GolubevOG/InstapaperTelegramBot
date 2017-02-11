@@ -42,7 +42,7 @@ def add_new_user_to_db(user_info):
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
     #add_new_user_to_db(update)
-    msg = "PLease login first (/login command). But thanks for the link anyway :)"
+    msg = "PLease login first (/login command)"
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
     logging.info('\n!!New User!!\n')
@@ -72,6 +72,7 @@ def logout(bot, update, user_data):
 
 
 def login(bot, update, args, user_data):
+    
     try:
         if user_data.get('wrapper', '*') == '*':
             user_data['wrapper'] = iw.Ipaper()
@@ -82,6 +83,8 @@ def login(bot, update, args, user_data):
         msg = 'There was an error: {}'.format(str(e))
         log_message(update, str(e))
 
+    print (user_data)
+
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
@@ -90,6 +93,7 @@ def login(bot, update, args, user_data):
 
 
 def bookmark(url, user_data):
+    msg = 'No'
     if user_data.get('wrapper', '*') != '*':
         try:
             b = instapaper.Bookmark(user_data.get('wrapper').instapaper, {"url": url})
@@ -123,6 +127,7 @@ def conversation(bot, update, user_data):
         msg = 'Sorry, I understand only text with links'
         bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
+    print (user_data)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
@@ -130,7 +135,7 @@ def conversation(bot, update, user_data):
 
 
 def reply_for_no_text_message(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text')
+    bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text.')
     log_message(update)
     logging.info('it was no text')
 
