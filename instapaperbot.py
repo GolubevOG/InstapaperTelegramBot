@@ -3,10 +3,7 @@ import re  # searching url in message
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
-import instapaper  # should be installed as pip install git+https://github.com/rsgalloway/instapaper
 import config  # временно загружаю логин-пароль для instapaper
-from db import db_session, User  # подключаю базу данных
-import urllib.parse
 import instawrapper as iw
 
 # логирование всех данных
@@ -22,7 +19,7 @@ def log_message(log_info):
 # пользователь заносится в базу данных, при активации команды START
 
 
-def add_new_user_to_db(user_info):
+'''def add_new_user_to_db(user_info):
     user_id = user_info['message']['chat']['id']
     user_username = user_info['message']['chat']['username']
     new_user = User()
@@ -35,7 +32,7 @@ def add_new_user_to_db(user_info):
         bot.sendMessage(chat_id=update.message.chat_id, text='Hello, new user!')
     else:
         new_start_message = 'Hello ' + user_username
-        bot.sendMessage(chat_id=update.message.chat_id, text=new_start_message)
+        bot.sendMessage(chat_id=update.message.chat_id, text=new_start_message)'''
 
 
 # реакция при нажатии команды Start
@@ -56,7 +53,6 @@ But you have to login.
 Please use command "login"''')
 
 # logging out
-# TODO3: doesn't work. WHY?
 
 
 def logout(bot, update, user_data):
