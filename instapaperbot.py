@@ -59,7 +59,6 @@ Please use command "login"''')
 def logout(bot, update, user_data):
     try:
         user_data.pop('wrapper', None)
-        print(update.message.from_user.id)
         db.User.delete(int(update.message.from_user.id))
         msg = 'Logged out!'
     except Exception as e:
@@ -84,8 +83,6 @@ def login(bot, update, args, user_data):
     except Exception as e:
         msg = 'There was an error: {}'.format(str(e))
         log_message(update, str(e))
-
-    print(user_data)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
@@ -120,8 +117,6 @@ def conversation(bot, update, user_data):
             user_data['wrapper'] = iw.Ipaper()
             user_data['wrapper'].login_with_token(update.message.from_user.id)
 
-        print(user_data['wrapper'])
-
         message_text = update['message']['text']
         clear_url = find_url(message_text)
         if len(clear_url) != 0:
@@ -130,15 +125,13 @@ def conversation(bot, update, user_data):
                     # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
                     msg = bookmark(single_url, user_data)
             else:
-                msg = "PLease login first (/login command). But thanks for the link anyway :)"
+                msg = "Please login first (/login command). But thanks for the link anyway :)"
         else:
             msg = 'Sorry, I understand only text with links'
-            bot.sendMessage(chat_id=update.message.chat_id, text=msg)
         log_message(update)
     except Exception as e:
         msg = str(e)
     log_message(update)
-    print(user_data)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
