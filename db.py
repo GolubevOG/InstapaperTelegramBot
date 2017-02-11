@@ -42,6 +42,7 @@ class User(Base):
         user_rec = db_session.query(User).get(userid)
         return user_rec
 
+
 Base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":

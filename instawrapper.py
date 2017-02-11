@@ -30,8 +30,8 @@ class Ipaper(object):
                     # getting user data
                     self.username = self.instapaper.user().get('username')
                     # user_data['username'] = user
-                    msg = 'Logged in as {}!'.format (self.username)
-                    print ('yes, login')
+                    msg = 'Logged in as {}!'.format(self.username)
+                    print('yes, login')
                 except KeyError:
                     msg = 'Incorrect credentials!'
 
