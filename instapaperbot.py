@@ -5,6 +5,7 @@ from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 import config  # временно загружаю логин-пароль для instapaper
 import instawrapper as iw
+import db
 
 # логирование всех данных
 
@@ -58,9 +59,11 @@ Please use command "login"''')
 def logout(bot, update, user_data):
     try:
         user_data.pop('wrapper', None)
+        print(update.message.from_user.id)
+        db.User.delete(int(update.message.from_user.id))
         msg = 'Logged out!'
-    except:
-        msg = 'Something has gone wrong!'
+    except Exception as e:
+        msg = 'Something has gone wrong! %s' % str(e)
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
 # authentication

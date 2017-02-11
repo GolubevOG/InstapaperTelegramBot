@@ -42,6 +42,13 @@ class User(Base):
         user_rec = db_session.query(User).get(userid)
         return user_rec
 
+    def delete(userid):
+        db_session.execute(
+            "DELETE FROM users_settings_db WHERE id=:userid",
+            {"userid": userid}
+        )
+        db_session.commit()
+
 
 Base.metadata.create_all(bind=engine)
 
