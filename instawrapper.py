@@ -35,6 +35,15 @@ class Ipaper(object):
                     msg = 'Incorrect credentials!'
 
         except Exception as e:
-            msg = 'There was an error111: %s' % str(e)
+            msg = 'There was an error: %s' % str(e)
 
         return msg
+
+    def login_with_token(self, userid):
+        self.instapaper = instapaper.Instapaper(config.oauth_token, config.oauth_secret)
+        user_rec = db.User.get_record(userid)
+        self.instapaper.login_with_token(user_rec.token, user_rec.token_pass)
+
+    def bookmark(self, params):
+        b = instapaper.Bookmark(self.instapaper, params)
+        b.save()

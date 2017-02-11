@@ -59,10 +59,10 @@ Please use command "login"''')
 
 
 def logout(bot, update, user_data):
-    user_data = None
-    if not user_data:
+    try:
+        user_data.pop('wrapper', None)
         msg = 'Logged out!'
-    else:
+    except:
         msg = 'Something has gone wrong!'
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
@@ -89,11 +89,11 @@ def login(bot, update, args, user_data):
 def bookmark(url, user_data):
     if user_data.get('wrapper', '*') != '*':
         try:
-            b = instapaper.Bookmark(user_data.get('wrapper').instapaper, {"url": url})
-            b.save()
+            b = user_data.get('wrapper').bookmark({"url": url})
+            # b.save()
             msg = 'Saved!'
         except Exception as e:
-            msg = str(e)
+            msg = str(e) + '12'
 
     return msg
 
@@ -107,20 +107,29 @@ def find_url(text):
 
 # основная функция по общению с пользователем
 def conversation(bot, update, user_data):
-    message_text = update['message']['text']
-    clear_url = find_url(message_text)
-    if len(clear_url) != 0:
-        if 1 == 1:  # TODO: check if authenticated
-            for single_url in clear_url:
-                # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
-                msg = bookmark(single_url, user_data)
-        else:
-            msg = "PLease login first (/login command). But thanks for the link anyway :)"
-    else:
-        msg = 'Sorry, I understand only text with links'
-        bot.sendMessage(chat_id=update.message.chat_id, text=msg)
-    log_message(update)
+    try:
+        if user_data.get('wrapper', '*') == '*':
+            # try to log in with saved token
+            user_data['wrapper'] = iw.Ipaper()
+            user_data['wrapper'].login_with_token(update.message.from_user.id)
 
+        print(user_data['wrapper'])
+
+        message_text = update['message']['text']
+        clear_url = find_url(message_text)
+        if len(clear_url) != 0:
+            if 1 == 1:  # TODO: check if authenticated
+                for single_url in clear_url:
+                    # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
+                    msg = bookmark(single_url, user_data)
+            else:
+                msg = "PLease login first (/login command). But thanks for the link anyway :)"
+        else:
+            msg = 'Sorry, I understand only text with links'
+            bot.sendMessage(chat_id=update.message.chat_id, text=msg)
+        log_message(update)
+    except Exception as e:
+        msg = str(e)
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
 # обработка всех остальных посылок, которые не текст

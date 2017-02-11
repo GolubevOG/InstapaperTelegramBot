@@ -32,11 +32,23 @@ class User(Base):
         self.token_pass = passwd
 
     def commit(self):
-        db_session.add(self)
+        db_session.merge(self)
         db_session.commit()
 
     def __repr__(self):
         return '<User {}>'.format(self.id)
 
+    def get_record(userid):
+        user_rec = db_session.query(User).get(userid)
+        return user_rec
 
 Base.metadata.create_all(bind=engine)
+
+if __name__ == "__main__":
+    a = User(51447112, 'q', 'e')
+    b = db_session.merge(a)
+    db_session.commit()
+    a = User()
+
+    # filter(or_(User.name == 'ed', User.name == 'wendy'))
+    print(User.get_record(51447112).token)
