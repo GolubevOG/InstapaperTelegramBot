@@ -41,7 +41,7 @@ def add_new_user_to_db(user_info):
 # реакция при нажатии команды Start
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
-    #add_new_user_to_db(update)
+    # add_new_user_to_db(update)
     msg = "PLease login first (/login command)"
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
@@ -72,19 +72,21 @@ def logout(bot, update, user_data):
 
 
 def login(bot, update, args, user_data):
-    
+
     try:
         if user_data.get('wrapper', '*') == '*':
-            user_data['wrapper'] = iw.Ipaper()
+            wrapper = iw.Ipaper()
 
-        msg = user_data['wrapper'].login(update.message.from_user.id, args)
+        loggedin, msg = wrapper.login(update.message.from_user.id, args)
+
+        if loggedin == 1:
+            user_data['wrapper'] = wrapper
 
     except Exception as e:
         msg = 'There was an error: {}'.format(str(e))
         log_message(update, str(e))
 
-    print (user_data)
-
+    print(user_data)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
@@ -96,8 +98,7 @@ def bookmark(url, user_data):
     msg = 'No'
     if user_data.get('wrapper', '*') != '*':
         try:
-            b = user_data.get('wrapper').bookmark({"url": url})
-            # b.save()
+            user_data.get('wrapper').bookmark({"url": url})
             msg = 'Saved!'
         except Exception as e:
             msg = str(e) + '12'
@@ -138,7 +139,7 @@ def conversation(bot, update, user_data):
     except Exception as e:
         msg = str(e)
     log_message(update)
-    print (user_data)
+    print(user_data)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 

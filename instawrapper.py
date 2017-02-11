@@ -10,6 +10,7 @@ class Ipaper(object):
         self.instapaper = None
 
     def login(self, userid, args):
+        loggedin = 0
         try:
             if self.instapaper:
                 msg = 'Already logged in!'
@@ -31,14 +32,14 @@ class Ipaper(object):
                     self.username = self.instapaper.user().get('username')
                     # user_data['username'] = user
                     msg = 'Logged in as {}!'.format(self.username)
-                    print('yes, login')
+                    loggedin = 1
                 except KeyError:
                     msg = 'Incorrect credentials!'
 
         except Exception as e:
             msg = 'There was an error: {}'.format(str(e))
 
-        return msg
+        return (loggedin, msg)
 
     def login_with_token(self, userid):
         self.instapaper = instapaper.Instapaper(config.oauth_token, config.oauth_secret)
@@ -48,3 +49,4 @@ class Ipaper(object):
     def bookmark(self, params):
         b = instapaper.Bookmark(self.instapaper, params)
         b.save()
+
