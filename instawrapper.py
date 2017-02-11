@@ -30,12 +30,13 @@ class Ipaper(object):
                     # getting user data
                     self.username = self.instapaper.user().get('username')
                     # user_data['username'] = user
-                    msg = 'Logged in as %s!' % self.username
+                    msg = 'Logged in as {}!'.format (self.username)
+                    print ('yes, login')
                 except KeyError:
                     msg = 'Incorrect credentials!'
 
         except Exception as e:
-            msg = 'There was an error: %s' % str(e)
+            msg = 'There was an error: {}'.format(str(e))
 
         return msg
 

@@ -26,7 +26,6 @@ def add_new_user_to_db(user_info):
     user_id = user_info['message']['chat']['id']
     user_username = user_info['message']['chat']['username']
     new_user = User()
-
     user_in_db = new_user.query.filter(User.user_id.like(user_id)).first()
     if user_in_db is None:
         new_user.user_id = user_id
@@ -42,7 +41,9 @@ def add_new_user_to_db(user_info):
 # реакция при нажатии команды Start
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
-    add_new_user_to_db(update)
+    #add_new_user_to_db(update)
+    msg = "PLease login first (/login command)"
+    bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
     logging.info('\n!!New User!!\n')
 
@@ -71,6 +72,7 @@ def logout(bot, update, user_data):
 
 
 def login(bot, update, args, user_data):
+    
     try:
         if user_data.get('wrapper', '*') == '*':
             user_data['wrapper'] = iw.Ipaper()
@@ -78,7 +80,11 @@ def login(bot, update, args, user_data):
         msg = user_data['wrapper'].login(update.message.from_user.id, args)
 
     except Exception as e:
-        msg = 'There was an error: %s' % str(e)
+        msg = 'There was an error: {}'.format(str(e))
+        log_message(update, str(e))
+
+    print (user_data)
+
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
@@ -87,6 +93,7 @@ def login(bot, update, args, user_data):
 
 
 def bookmark(url, user_data):
+    msg = 'No'
     if user_data.get('wrapper', '*') != '*':
         try:
             b = user_data.get('wrapper').bookmark({"url": url})
@@ -130,13 +137,16 @@ def conversation(bot, update, user_data):
         log_message(update)
     except Exception as e:
         msg = str(e)
+    log_message(update)
+    print (user_data)
+
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
 # обработка всех остальных посылок, которые не текст
 
 
 def reply_for_no_text_message(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text')
+    bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text.')
     log_message(update)
     logging.info('it was no text')
 
@@ -144,6 +154,7 @@ def reply_for_no_text_message(bot, update):
 # реакция на неизвестные команды
 def unknown(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id, text="I didn't understand that command.")
+    log_message(update)
 
 # основная функция программы
 
