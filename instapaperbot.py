@@ -19,9 +19,20 @@ def log_message(log_info):
 
 # пользователь заносится в базу данных, при активации команды START
 
+    
+def add_new_user_to_db(user_info):
+    user_id = user_info['message']['chat']['id']
+    try: 
+        db.User.add_user(user_id)
+    except Exception as e:
+        log_message('Error start',e)
+        log_message(update)
+        
+
+    
 
 '''def add_new_user_to_db(user_info):
-    user_id = user_info['message']['chat']['id']
+    
     user_username = user_info['message']['chat']['username']
     new_user = User()
     user_in_db = new_user.query.filter(User.user_id.like(user_id)).first()
@@ -39,7 +50,7 @@ def log_message(log_info):
 # реакция при нажатии команды Start
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
-    # add_new_user_to_db(update)
+    add_new_user_to_db(update)
     msg = "PLease login first (/login command)"
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
@@ -62,7 +73,7 @@ def logout(bot, update, user_data):
         db.User.delete(int(update.message.from_user.id))
         msg = 'Logged out!'
     except Exception as e:
-        msg = 'Something has gone wrong! %s' % str(e)
+        msg = 'Something has gone wrong! {}'.format(str(e))
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
 # authentication
@@ -129,6 +140,7 @@ def conversation(bot, update, user_data):
         else:
             msg = 'Sorry, I understand only text with links'
         log_message(update)
+
     except Exception as e:
         msg = str(e)
     log_message(update)

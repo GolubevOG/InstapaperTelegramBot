@@ -25,8 +25,6 @@ class User(Base):
     # date_of_activation = Column(String(50))
 
     def __init__(self, id=None, token=None, passwd=None):
-        '''self.email = email
-        self.passwd = passwd'''
         self.id = id
         self.token = token
         self.token_pass = passwd
@@ -38,6 +36,14 @@ class User(Base):
     def __repr__(self):
         return '<User {}>'.format(self.id)
 
+    def add_user(userid):
+    	db_session.execute(
+    		"INSERT INTO users_settings_db (id) VALUES ({})".format(userid)
+    		
+    	)
+    	db_session.commit()
+
+
     def get_record(userid):
         user_rec = db_session.query(User).get(userid)
         return user_rec
@@ -48,6 +54,7 @@ class User(Base):
             {"userid": userid}
         )
         db_session.commit()
+
 
 
 Base.metadata.create_all(bind=engine)
