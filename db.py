@@ -37,6 +37,8 @@ class User(Base):
         return '<User {}>'.format(self.id)
 
     def add_user(userid):
+    	#проверять есть ли такой пользователь уже или нет
+
     	db_session.execute(
     		"INSERT INTO users_settings_db (id) VALUES ({})".format(userid)
     		
