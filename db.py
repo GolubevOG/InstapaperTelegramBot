@@ -29,7 +29,7 @@ class User(Base):
         self.token = token
         self.token_pass = passwd
 
-    def commit(self):
+    def merge(self):
         db_session.merge(self)
         db_session.commit()
 

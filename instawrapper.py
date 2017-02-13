@@ -26,7 +26,7 @@ class Ipaper(object):
 
                     # insert new
                     user = db.User(userid, token['oauth_token'], token['oauth_token_secret'])
-                    user.commit()
+                    user.merge()
 
                     # getting user data
                     self.username = self.instapaper.user().get('username')
