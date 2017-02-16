@@ -3,32 +3,54 @@ import sqlite3
 #conn = sqlite3.connect('user_information.sqlite')
 #db_session = conn.cursor()
     
-
-def is_user_login(userid):
-    conn = sqlite3.connect('user_information.sqlite')
-    db_session = conn.cursor()
-    user_status = db_session.execute("SELECT * FROM users_settings_db WHERE id = ?",(userid,))
-    user_status.fetchone()
-    if user_status:
-        return True
-    else:
-        return False
-
-def add_user(userid):
-    #проверять есть ли такой пользователь уже или нет
-    db_session.execute("INSERT INTO users_settings_db (id) VALUES (?)",(userid))
-    db_session.commit()
+class User():
+    def __init__(self, id=None, token=None, passwd=None):
+        self.id = id
+        self.token = token
+        self.token_pass = passwd
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(self.id,self.token,self.token_pass))
+        conn.commit()
+        conn.close()
 
 
-def get_record(userid):
-    user_rec = db_session.execute("SELECT token, token_pass FROM users_settings_db WHERE id = ?",(userid,))
-    user_rec.fetchone()
-    return user_rec
 
 
-def delete(userid):
-    db_session.execute("DELETE FROM users_settings_db WHERE id = ?",(userid,))
-    db_session.commit()
+
+    def is_user_login(userid):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        user_status = db_session.execute("SELECT * FROM users_settings_db WHERE id = ?",(userid,))
+        user_status = user_status.fetchone()
+        if user_status:
+            return True
+        else:
+            return False
+
+    def add_user(userid):
+        #проверять есть ли такой пользователь уже или нет
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(userid,None,None))
+        conn.commit()
+        conn.close()
+
+
+    def get_record(userid):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        user_rec = db_session.execute("SELECT token, token_pass FROM users_settings_db WHERE id = ?",(userid,))
+        user_rec.fetchone()
+        return user_rec
+
+
+    def delete(userid):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("DELETE FROM users_settings_db WHERE id = ?",(userid,))
+        conn.commit()
+        conn.close()
 
 
 '''

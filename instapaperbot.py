@@ -19,44 +19,47 @@ def log_message(log_info):
 
 
 # пользователь заносится в базу данных, при активации команды START 
-def add_new_user_to_db(user_info):
-    user_id = user_info['message']['chat']['id']
+def add_new_user_to_db(user_id):
     try: 
         db.User.add_user(user_id)
     except Exception as e:
-        log_message('Error start',e)
-        log_message(update)
+        msg = 'Error start' + str(e)
+        logging.info(msg)
+        
         
 # реакция при нажатии команды Start
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
-    #add_new_user_to_db(update)
-    msg = "PLease login first (/login command)"
+    user_id = int(update.message.from_user.id)
+    if not db.User.is_user_login(user_id): 
+        #add_new_user_to_db(user_id)
+        msg = "Please login first (/login command)"
+    else:
+        msg = "You can add links"
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
     logging.info('\n!!New User!!\n')
 
-    user_id = update['message']['chat']['id']
-    print (db.is_user_login(user_id))
-
 # реакия при нажатии команды info
-
-
 def info_message(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text='''bot sends a link to your Instapaper.
-But you have to login.
-Please use command "login"''')
+    if not db.User.is_user_login(int(update.message.from_user.id)): 
+        bot.sendMessage(chat_id=update.message.chat_id, text='''bot sends a link to your Instapaper.\
+                                                                But you have to login.\
+                                                                Please use command "login"''')
+    else:
+        bot.sendMessage(chat_id=update.message.chat_id, text='''thank you for using this bot''')
 
 # logging out
 
 
-def logout(bot, update, user_data):
+def logout(bot, update):
     try:
-        user_data.pop('wrapper', None)
-        db.User.delete(int(update.message.from_user.id))
+        if db.User.is_user_login(int(update.message.from_user.id)): 
+            db.User.delete(int(update.message.from_user.id))
         msg = 'Logged out!'
     except Exception as e:
-        msg = 'Something has gone wrong! {}'.format(str(e))
+        msg = 'Something has gone wrong!'
+        logging.info('error in logout: {}'.format(e))
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
 # authentication
@@ -64,25 +67,25 @@ def logout(bot, update, user_data):
 
 
 def login(bot, update, args, user_data):
-
-    try:
-        if user_data.get('wrapper', '*') == '*':
+    if not db.User.is_user_login(int(update.message.from_user.id)): 
+        try:
             wrapper = iw.Ipaper()
+            loggedin, msg = wrapper.login(update.message.from_user.id, args)
 
-        loggedin, msg = wrapper.login(update.message.from_user.id, args)
+            if loggedin == 1:
+                user_data['wrapper'] = wrapper
 
-        if loggedin == 1:
-            user_data['wrapper'] = wrapper
-
-    except Exception as e:
-        msg = 'There was an error: {}'.format(str(e))
-        log_message(update)
+        except Exception as e:
+            msg = 'Something has gone wrong!'
+            #msg = 'There was an error: {}'.format(str(e))
+            logging.info('error in login: {}'.format(e))
+    else:
+        msg = 'You already login!'
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
+    log_message(update)
 
 # добавлении адреса в Instapaper конкретного человека
-# пока можно установить собственный логин-пароль и постить туда адреса
-
 
 def bookmark(url, user_data):
     msg = 'No'
