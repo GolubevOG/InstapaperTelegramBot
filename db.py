@@ -1,15 +1,35 @@
-from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import sqlite3
 
-engine = create_engine('sqlite:///user_information.sqlite')
+db_session = sqlite3.connect('user_information.sqlite')
 
-db_session = scoped_session(sessionmaker(bind=engine))
 
-Base = declarative_base()
-Base.query = db_session.query_property()
+def is_user_login(userid):
+    print ('check')
+    user_status = db_session.execute("SELECT * FROM user_setttings_db WHERE id = ?",(userid,))
+    user_status.fetchone()
+    if user_status:
+        return True
+    else:
+        return False
 
+def add_user(userid):
+    #проверять есть ли такой пользователь уже или нет
+    db_session.execute("INSERT INTO users_settings_db (id) VALUES (?)",(userid))
+    db_session.commit()
+
+
+def get_record(userid):
+    user_rec = db_session.execute("SELECT token, token_pass FROM users_settings_db WHERE id = ?",(userid,))
+    user_rec.fetchone()
+    return user_rec
+
+
+def delete(userid):
+    db_session.execute("DELETE FROM users_settings_db WHERE id = ?",(userid,))
+    db_session.commit()
+
+
+'''
 
 class User(Base):
     __tablename__ = 'users_settings_db'
@@ -37,13 +57,13 @@ class User(Base):
         return '<User {}>'.format(self.id)
 
     def add_user(userid):
-    	#проверять есть ли такой пользователь уже или нет
+        #проверять есть ли такой пользователь уже или нет
 
-    	db_session.execute(
-    		"INSERT INTO users_settings_db (id) VALUES ({})".format(userid)
-    		
-    	)
-    	db_session.commit()
+        db_session.execute(
+            "INSERT INTO users_settings_db (id) VALUES ({})".format(userid)
+            
+        )
+        db_session.commit()
 
 
     def get_record(userid):
@@ -69,3 +89,4 @@ if __name__ == "__main__":
 
     # filter(or_(User.name == 'ed', User.name == 'wendy'))
     print(User.get_record(51447112).token)
+'''
