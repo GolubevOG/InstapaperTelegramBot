@@ -1,11 +1,13 @@
 import sqlite3
 
-db_session = sqlite3.connect('user_information.sqlite')
-
+#conn = sqlite3.connect('user_information.sqlite')
+#db_session = conn.cursor()
+    
 
 def is_user_login(userid):
-    print ('check')
-    user_status = db_session.execute("SELECT * FROM user_setttings_db WHERE id = ?",(userid,))
+    conn = sqlite3.connect('user_information.sqlite')
+    db_session = conn.cursor()
+    user_status = db_session.execute("SELECT * FROM users_settings_db WHERE id = ?",(userid,))
     user_status.fetchone()
     if user_status:
         return True

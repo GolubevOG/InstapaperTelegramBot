@@ -17,9 +17,8 @@ def log_message(log_info):
     debug_info = 'id:{} user:{} text:"{}"'.format(user_id, user_username, user_text)
     logging.info(debug_info)
 
-# пользователь заносится в базу данных, при активации команды START
 
-    
+# пользователь заносится в базу данных, при активации команды START 
 def add_new_user_to_db(user_info):
     user_id = user_info['message']['chat']['id']
     try: 
@@ -28,33 +27,17 @@ def add_new_user_to_db(user_info):
         log_message('Error start',e)
         log_message(update)
         
-
-    
-
-'''def add_new_user_to_db(user_info):
-    
-    user_username = user_info['message']['chat']['username']
-    new_user = User()
-    user_in_db = new_user.query.filter(User.user_id.like(user_id)).first()
-    if user_in_db is None:
-        new_user.user_id = user_id
-        new_user.user_nickname = user_username
-        db_session.add(new_user)
-        db_session.commit()
-        bot.sendMessage(chat_id=update.message.chat_id, text='Hello, new user!')
-    else:
-        new_start_message = 'Hello ' + user_username
-        bot.sendMessage(chat_id=update.message.chat_id, text=new_start_message)'''
-
-
 # реакция при нажатии команды Start
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
-    add_new_user_to_db(update)
+    #add_new_user_to_db(update)
     msg = "PLease login first (/login command)"
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
     logging.info('\n!!New User!!\n')
+
+    user_id = update['message']['chat']['id']
+    print (db.is_user_login(user_id))
 
 # реакия при нажатии команды info
 
@@ -93,7 +76,7 @@ def login(bot, update, args, user_data):
 
     except Exception as e:
         msg = 'There was an error: {}'.format(str(e))
-        log_message(update, str(e))
+        log_message(update)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
