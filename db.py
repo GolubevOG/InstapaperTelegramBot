@@ -4,6 +4,7 @@ import sqlite3
 #db_session = conn.cursor()
     
 class User():
+    #надо бы поменять на add_user
     def __init__(self, id=None, token=None, passwd=None):
         self.id = id
         self.token = token
@@ -14,10 +15,16 @@ class User():
         conn.commit()
         conn.close()
 
+    #пока неактивная 
+    #добавляет пользователей
+    def add_user(user_id,token,token_pass):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(user_id,token,token_pass))
+        conn.commit()
+        conn.close()
 
-
-
-
+    #проверка залогинин ли пользователь или нет
     def is_user_login(userid):
         conn = sqlite3.connect('user_information.sqlite')
         db_session = conn.cursor()
@@ -28,8 +35,8 @@ class User():
         else:
             return False
 
-    def add_user(userid):
-        #проверять есть ли такой пользователь уже или нет
+    #добавляет пользователей, при нажатии команды start тестовая
+    def add_user_when_start(userid):
         conn = sqlite3.connect('user_information.sqlite')
         db_session = conn.cursor()
         db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(userid,None,None))
@@ -51,6 +58,7 @@ class User():
         db_session.execute("DELETE FROM users_settings_db WHERE id = ?",(userid,))
         conn.commit()
         conn.close()
+        print ('logout ok')
 
 
 '''

@@ -19,9 +19,10 @@ def log_message(log_info):
 
 
 # пользователь заносится в базу данных, при активации команды START 
+# тестовая функция
 def add_new_user_to_db(user_id):
     try: 
-        db.User.add_user(user_id)
+        db.User.add_user_when_start(user_id)
     except Exception as e:
         msg = 'Error start' + str(e)
         logging.info(msg)
@@ -85,7 +86,6 @@ def login(bot, update, args, user_data):
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
     log_message(update)
 
-# добавлении адреса в Instapaper конкретного человека
 
 def bookmark(url, user_data):
     msg = 'No'
@@ -94,8 +94,7 @@ def bookmark(url, user_data):
             user_data.get('wrapper').bookmark({"url": url})
             msg = 'Saved!'
         except Exception as e:
-            msg = str(e) + '12'
-
+            msg = str(e) + ' bookmark'
     return msg
 
 
@@ -106,8 +105,9 @@ def find_url(text):
     return res
 
 
-# основная функция по общению с пользователем
-def conversation(bot, update, user_data):
+# добавление ссылок
+def add_links(bot, update, user_data):
+
     try:
         if user_data.get('wrapper', '*') == '*':
             # try to log in with saved token
@@ -132,6 +132,25 @@ def conversation(bot, update, user_data):
     log_message(update)
 
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
+
+
+# основная функция по общению с пользователем
+def conversation(bot, update, user_data):
+    if db.User.is_user_login(int(update.message.from_user.id)):
+        message_text = update['message']['text']
+        clear_url = find_url(message_text)
+        if len(clear_url) != 0:
+            for single_url in clear_url:
+                # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
+                msg = bookmark(single_url, user_data)
+        else:
+            msg = 'Sorry, I understand only text with links'
+        log_message(update)
+    else:
+        msg = 'Please log in!'
+    bot.sendMessage(chat_id=update.message.chat_id, text=msg)
+
+
 
 # обработка всех остальных посылок, которые не текст
 
@@ -160,7 +179,7 @@ def main():
     start_handler = CommandHandler('start', start)
     info_handler = CommandHandler('info', info_message)
     login_handler = CommandHandler('login', login, pass_args=True, pass_user_data=True)
-    logout_handler = CommandHandler('logout', logout, pass_user_data=True)
+    logout_handler = CommandHandler('logout', logout)
     conversation_handler = MessageHandler(Filters.text, conversation, pass_user_data=True)
     unknown_handler = MessageHandler(Filters.command, unknown)
     reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
