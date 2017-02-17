@@ -46,6 +46,10 @@ class Ipaper(object):
         self.instapaper.login_with_token(user_rec.token, user_rec.token_pass)
 
     def bookmark(self, params):
+        print (self, params)
+        print (dir(self))
         b = instapaper.Bookmark(self.instapaper, params)
         b.save()
+
+    
 

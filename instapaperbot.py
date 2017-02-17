@@ -87,14 +87,33 @@ def login(bot, update, args, user_data):
     log_message(update)
 
 
-def bookmark(url, user_data):
+def bookmark(url, user_data, user_id):
     msg = 'No'
+    print (user_data)
+    print (user_data.get('wrapper'))
+    if db.User.is_user_login(user_id) and user_data.get('wrapper', '*') == '*':
+        print ('relogin')
+        try:
+            wrapper = iw.Ipaper()
+            wrapper.login_with_token(user.id)
+            user_data['wrapper'] = wrapper
+        except Exception as e:
+            msg = 'Something has gone wrong!'
+            #msg = 'There was an error: {}'.format(str(e))
+            logging.info('error in login: {}'.format(e))
+
+    print (user_data)
+    print (user_data.get('wrapper'))
+    print ('url', url)
+
+
     if user_data.get('wrapper', '*') != '*':
         try:
             user_data.get('wrapper').bookmark({"url": url})
             msg = 'Saved!'
         except Exception as e:
-            msg = str(e) + ' bookmark'
+            print (e)
+            msg = str(e) + '- error bookmark'
     return msg
 
 
@@ -104,45 +123,16 @@ def find_url(text):
     res = pattern.findall(text)
     return res
 
-
-# добавление ссылок
-def add_links(bot, update, user_data):
-
-    try:
-        if user_data.get('wrapper', '*') == '*':
-            # try to log in with saved token
-            user_data['wrapper'] = iw.Ipaper()
-            user_data['wrapper'].login_with_token(update.message.from_user.id)
-
-        message_text = update['message']['text']
-        clear_url = find_url(message_text)
-        if len(clear_url) != 0:
-            if 1 == 1:  # TODO: check if authenticated
-                for single_url in clear_url:
-                    # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
-                    msg = bookmark(single_url, user_data)
-            else:
-                msg = "Please login first (/login command). But thanks for the link anyway :)"
-        else:
-            msg = 'Sorry, I understand only text with links'
-        log_message(update)
-
-    except Exception as e:
-        msg = str(e)
-    log_message(update)
-
-    bot.sendMessage(chat_id=update.message.chat_id, text=msg)
-
-
 # основная функция по общению с пользователем
 def conversation(bot, update, user_data):
-    if db.User.is_user_login(int(update.message.from_user.id)):
+    user_id = int(update.message.from_user.id)
+    if db.User.is_user_login(user_id):
         message_text = update['message']['text']
         clear_url = find_url(message_text)
         if len(clear_url) != 0:
             for single_url in clear_url:
                 # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
-                msg = bookmark(single_url, user_data)
+                msg = bookmark(single_url, user_data, user_id)
         else:
             msg = 'Sorry, I understand only text with links'
         log_message(update)
