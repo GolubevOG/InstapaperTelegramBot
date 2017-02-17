@@ -48,7 +48,7 @@ class User():
         conn = sqlite3.connect('user_information.sqlite')
         db_session = conn.cursor()
         user_rec = db_session.execute("SELECT token, token_pass FROM users_settings_db WHERE id = ?",(user_id,))
-        user_rec.fetchone()
+        user_rec = user_rec.fetchone()
         return user_rec
 
 

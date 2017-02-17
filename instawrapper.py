@@ -40,14 +40,12 @@ class Ipaper(object):
 
         return (loggedin, msg)
 
-    def login_with_token(self, userid):
+    def login_with_token(self, user_id):
         self.instapaper = instapaper.Instapaper(config.oauth_token, config.oauth_secret)
-        user_rec = db.User.get_record(userid)
-        self.instapaper.login_with_token(user_rec.token, user_rec.token_pass)
+        token, token_pass = db.User.get_record(user_id)
+        self.instapaper.login_with_token(token, token_pass)
 
     def bookmark(self, params):
-        print (self, params)
-        print (dir(self))
         b = instapaper.Bookmark(self.instapaper, params)
         b.save()
 

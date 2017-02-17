@@ -89,31 +89,25 @@ def login(bot, update, args, user_data):
 
 def bookmark(url, user_data, user_id):
     msg = 'No'
-    print (user_data)
-    print (user_data.get('wrapper'))
+    #проверка, если человек залогинин, но временных данных о нем нет
+    #значит сервер был перегружен
+    #обновление временных данных за счет перелогирования
     if db.User.is_user_login(user_id) and user_data.get('wrapper', '*') == '*':
-        print ('relogin')
         try:
             wrapper = iw.Ipaper()
-            wrapper.login_with_token(user.id)
+            wrapper.login_with_token(user_id)
             user_data['wrapper'] = wrapper
         except Exception as e:
             msg = 'Something has gone wrong!'
-            #msg = 'There was an error: {}'.format(str(e))
             logging.info('error in login: {}'.format(e))
 
-    print (user_data)
-    print (user_data.get('wrapper'))
-    print ('url', url)
-
-
-    if user_data.get('wrapper', '*') != '*':
-        try:
-            user_data.get('wrapper').bookmark({"url": url})
-            msg = 'Saved!'
-        except Exception as e:
-            print (e)
-            msg = str(e) + '- error bookmark'
+    #добавление ссылки 
+    try:
+        user_data.get('wrapper').bookmark({"url": url})
+        msg = 'Saved!'
+    except Exception as e:
+        print (e)
+        msg = str(e) + '- error add link'
     return msg
 
 
