@@ -1,5 +1,6 @@
 import logging
 import re  # searching url in message
+#pip install python-telegram-bot
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
@@ -26,8 +27,8 @@ def add_new_user_to_db(user_id):
         logging.info(msg)
 '''
      
+
 # реакция при нажатии команды Start
-# тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
     user_id = int(update.message.from_user.id)
     if not db.User.is_user_login(user_id): 
@@ -113,6 +114,18 @@ def add_link(url, user_data, user_id):
         msg = str(e) + '- error add link'
     return msg
 
+def create_folder(bot, update, user_data):
+    print ('create folder')
+    relogin_after_disconnect(user_data, user_id)
+    #добавление ссылки 
+    try:
+        user_data.get('wrapper').create_folder('тест')
+        msg = 'Saved!'
+    except Exception as e:
+        print (e)
+        msg = str(e) + '- error create folder'
+    return msg
+
 
 # регулярное выражение для поиска URL в сообщении
 def find_url(text):
@@ -147,7 +160,7 @@ def reply_for_no_text_message(bot, update):
 
 
 # реакция на неизвестные команды
-def unknown(bot, update):
+def all_unknown_commands(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id, text="I didn't understand that command.")
     log_message(update)
 
@@ -166,10 +179,15 @@ def main():
     info_handler = CommandHandler('info', info_message)
     login_handler = CommandHandler('login', login, pass_args=True, pass_user_data=True)
     logout_handler = CommandHandler('logout', logout)
+    #InstapaperCommands
+    create_folder_handler = CommandHandler('create_folder', create_folder, pass_user_data = True)
+    unknown_handler = MessageHandler(Filters.command, all_unknown_commands)
+
     conversation_handler = MessageHandler(Filters.text, conversation, pass_user_data=True)
-    unknown_handler = MessageHandler(Filters.command, unknown)
+    #unknow_handler
     reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
 
+    
     # dispatchers
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(info_handler)
@@ -178,7 +196,7 @@ def main():
     dispatcher.add_handler(conversation_handler)
     dispatcher.add_handler(unknown_handler)
     dispatcher.add_handler(reply_for_no_text_message_handler)
-    
+    dispatcher.add_handler(create_folder_handler)
     # updater
     updater.start_polling()
 

@@ -1,5 +1,6 @@
 import instapaper  # should be installed as pip install git+https://github.com/rsgalloway/instapaper
-#для python3 обязательно в исходной библиотеке задокументировать строки 
+#при установки библиотеки
+#если python3 обязательно в исходной библиотеке задокументировать строки 
 #112-115 иначе он будет пытаться перевести всё в формат UTF8
 import config  # временно загружаю логин-пароль для instapaper
 import db
@@ -50,6 +51,31 @@ class Ipaper(object):
     def bookmark(self, params):
         b = instapaper.Bookmark(self.instapaper, params)
         b.save()
+
+    def create_folder(title):
+        instapaper.create_folder(title)
+
+    def watch_last_bookmars():
+        pass
+
+    def watch_folders():
+        pass
+
+    def set_default_folder():
+        pass
+
+    def move_bookmarks():
+        pass
+
+
+    #
+    #add star
+    #add unstar
+    #add archive
+    #add unarchive
+    #add delete
+
+
 
     
 
