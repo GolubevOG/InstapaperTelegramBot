@@ -1,49 +1,69 @@
-from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import sqlite3
 
-engine = create_engine('sqlite:///user_information.sqlite')
+#conn = sqlite3.connect('user_information.sqlite')
+#db_session = conn.cursor()
+    
+class User():
+    #надо бы поменять на add_user
+    def __init__(self, id=None, token=None, passwd=None):
+        self.id = id
+        self.token = token
+        self.token_pass = passwd
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(self.id,self.token,self.token_pass))
+        conn.commit()
+        conn.close()
 
-db_session = scoped_session(sessionmaker(bind = engine))
+    #пока неактивная 
+    #добавляет пользователей
+    def add_user(user_id,token,token_pass):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(user_id,token,token_pass))
+        conn.commit()
+        conn.close()
 
-Base = declarative_base()
-Base.query = db_session.query_property()
+    #проверка залогинин ли пользователь или нет
+    def is_user_login(user_id):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        user_status = db_session.execute("SELECT * FROM users_settings_db WHERE id = ?",(user_id,))
+        user_status = user_status.fetchone()
+        if user_status:
+            return True
+        else:
+            return False
 
-class User(Base):
-    __tablename__ = 'users_settings_db'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, unique = True)
-    user_nickname = Column(String(50))
-    user_first_name = Column(String(50))
-    user_last_name = Column(String(50))
-    email = Column(String(120))
-    passwd = Column(String(120))
-    status = Column(Integer)
-    date_of_activation = Column(String(50))
+    #добавляет пользователей, при нажатии команды start тестовая
+    def add_user_when_start(user_id):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("INSERT INTO users_settings_db VALUES (?,?,?)",(user_id,None,None))
+        conn.commit()
+        conn.close()
 
 
-    def __init__(self, user_id = None, user_nickname = None, 
-                    user_first_name=None, user_last_name=None, 
-                    passwd = None, email=None, status = None, date_of_activation = None):
-        self.user_id = user_id
-        self.user_nickname = user_nickname
-        self.user_first_name = user_first_name
-        self.user_last_name = user_last_name
-        self.email = email
-        self.passwd = passwd
-        self.status = status
-        self.date_of_activation = date_of_activation
-      
-    def add_login_passwd(self, passwd = None, email=None):
-        self.email = email
-        self.passwd = passwd
-        db_session.add(self)
-        db_session.commit()
-      
+    def get_record(user_id):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        user_rec = db_session.execute("SELECT token, token_pass FROM users_settings_db WHERE id = ?",(user_id,))
+        user_rec = user_rec.fetchone()
+        return user_rec
 
-    def __repr__(self):
-        return '<User {} {} {} {}>'.format(self.user_id, self.user_nickname, self.user_first_name, self.user_last_name)
+
+    def delete(user_id):
+        conn = sqlite3.connect('user_information.sqlite')
+        db_session = conn.cursor()
+        db_session.execute("DELETE FROM users_settings_db WHERE id = ?",(user_id,))
+        conn.commit()
+        conn.close()
+
 
 if __name__ == '__main__':
-    Base.metadata.create_all(bind = engine)
+    conn = sqlite3.connect('user_information.sqlite')
+    db_session = conn.cursor()
+    db_session.execute("CREATE TABLE users_settings_db (id int primary key, token text, token_pass text)")
+    conn.commit()
+    conn.close()
+
