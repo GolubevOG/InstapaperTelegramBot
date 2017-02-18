@@ -1,4 +1,6 @@
 import instapaper  # should be installed as pip install git+https://github.com/rsgalloway/instapaper
+#для python3 обязательно в исходной библиотеке задокументировать строки 
+#112-115 иначе он будет пытаться перевести всё в формат UTF8
 import config  # временно загружаю логин-пароль для instapaper
 import db
 import urllib.parse

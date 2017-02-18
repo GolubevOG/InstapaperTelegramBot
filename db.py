@@ -58,3 +58,12 @@ class User():
         db_session.execute("DELETE FROM users_settings_db WHERE id = ?",(user_id,))
         conn.commit()
         conn.close()
+
+
+if __name__ == '__main__':
+    conn = sqlite3.connect('user_information.sqlite')
+    db_session = conn.cursor()
+    db_session.execute("CREATE TABLE users_settings_db (id int primary key, token text, token_pass text)")
+    conn.commit()
+    conn.close()
+

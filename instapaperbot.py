@@ -3,13 +3,11 @@ import re  # searching url in message
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
-import config  # временно загружаю логин-пароль для instapaper
+import config  # временно загружаю ТОKEN
 import instawrapper as iw
 import db
 
 # логирование всех данных
-
-
 def log_message(log_info):
     user_id = log_info['message']['chat']['id']
     user_username = log_info['message']['chat']['username']
@@ -17,7 +15,7 @@ def log_message(log_info):
     debug_info = 'id:{} user:{} text:"{}"'.format(user_id, user_username, user_text)
     logging.info(debug_info)
 
-
+'''
 # пользователь заносится в базу данных, при активации команды START 
 # тестовая функция
 def add_new_user_to_db(user_id):
@@ -26,8 +24,8 @@ def add_new_user_to_db(user_id):
     except Exception as e:
         msg = 'Error start' + str(e)
         logging.info(msg)
-        
-        
+'''
+     
 # реакция при нажатии команды Start
 # тут нужно добавить добавление пользователя в базу пользователей
 def start(bot, update):
@@ -41,6 +39,7 @@ def start(bot, update):
     log_message(update)
     logging.info('\n!!New User!!\n')
 
+
 # реакия при нажатии команды info
 def info_message(bot, update):
     if not db.User.is_user_login(int(update.message.from_user.id)): 
@@ -50,9 +49,8 @@ def info_message(bot, update):
     else:
         bot.sendMessage(chat_id=update.message.chat_id, text='''thank you for using this bot''')
 
-# logging out
 
-
+# logout
 def logout(bot, update):
     try:
         if db.User.is_user_login(int(update.message.from_user.id)): 
@@ -63,10 +61,9 @@ def logout(bot, update):
         logging.info('error in logout: {}'.format(e))
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
 
+
 # authentication
 # TODO4: passwords should not be saved in chat history! https://github.com/yagop/node-telegram-bot-api/issues/143
-
-
 def login(bot, update, args, user_data):
     if not db.User.is_user_login(int(update.message.from_user.id)): 
         try:
@@ -87,8 +84,7 @@ def login(bot, update, args, user_data):
     log_message(update)
 
 
-def bookmark(url, user_data, user_id):
-    msg = 'No'
+def relogin_after_disconnect(user_data, user_id):
     #проверка, если человек залогинин, но временных данных о нем нет
     #значит сервер был перегружен
     #обновление временных данных за счет перелогирования
@@ -101,6 +97,13 @@ def bookmark(url, user_data, user_id):
             msg = 'Something has gone wrong!'
             logging.info('error in login: {}'.format(e))
 
+
+
+def add_link(url, user_data, user_id):
+    msg = 'Error'
+    #проверка на актуальность данных в памяти
+    relogin_after_disconnect(user_data, user_id)
+    
     #добавление ссылки 
     try:
         user_data.get('wrapper').bookmark({"url": url})
@@ -126,7 +129,7 @@ def conversation(bot, update, user_data):
         if len(clear_url) != 0:
             for single_url in clear_url:
                 # why is clear_url a dict? it's very ulikely that someone will add more that one URL in a single message
-                msg = bookmark(single_url, user_data, user_id)
+                msg = add_link(single_url, user_data, user_id)
         else:
             msg = 'Sorry, I understand only text with links'
         log_message(update)
@@ -137,8 +140,6 @@ def conversation(bot, update, user_data):
 
 
 # обработка всех остальных посылок, которые не текст
-
-
 def reply_for_no_text_message(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text.')
     log_message(update)
@@ -154,6 +155,7 @@ def unknown(bot, update):
 
 
 def main():
+    #токен от бота
     TOKEN = config.TOKEN
     # простое логгирование в файл
     logging.basicConfig(filename='info.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -176,6 +178,7 @@ def main():
     dispatcher.add_handler(conversation_handler)
     dispatcher.add_handler(unknown_handler)
     dispatcher.add_handler(reply_for_no_text_message_handler)
+    
     # updater
     updater.start_polling()
 
