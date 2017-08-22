@@ -12,8 +12,8 @@ import db
 def log_message(log_info):
     user_id = log_info['message']['chat']['id']
     user_username = log_info['message']['chat']['username']
-    user_text = log_info['message']['text']
-    debug_info = 'id:{} user:{} text:"{}"'.format(user_id, user_username, user_text)
+    user_text = 'text:{}, caption:{}'.format(log_info['message']['text'],log_info['message']['caption'])
+    debug_info = 'id:{} user:{} message:"{}"'.format(user_id, user_username, user_text)
     logging.info(debug_info)
 
 '''
@@ -154,8 +154,6 @@ def search_and_add_links (bot, update, user_data, message_text):
 def conversation(bot, update, user_data):
     text_from_message = update['message']['text']
     search_and_add_links(bot, update, user_data, text_from_message)
-    
-
 
 
 # обработка всех остальных посылок, которые не текст
@@ -192,12 +190,10 @@ def main():
     #InstapaperCommands
     create_folder_handler = CommandHandler('create_folder', create_folder, pass_user_data = True)
     unknown_handler = MessageHandler(Filters.command, all_unknown_commands)
-
     conversation_handler = MessageHandler(Filters.text, conversation, pass_user_data=True)
-    #unknow_handler
-    reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
+    #handler for all messages
+    reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message, pass_user_data=True)
 
-    
     # dispatchers
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(info_handler)
