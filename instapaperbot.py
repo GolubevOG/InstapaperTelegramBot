@@ -119,12 +119,11 @@ def find_url(text):
     pattern = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]|[А-Яа-я]))+')
     res = pattern.findall(text)
     return res
-
-# основная функция по общению с пользователем
-def conversation(bot, update, user_data):
+    
+#отправляется текст, находится ссылка и добавлается в instapaper
+def search_and_add_links (bot, update, user_data, message_text):
     user_id = int(update.message.from_user.id)
     if db.User.is_user_login(user_id):
-        message_text = update['message']['text']
         clear_url = find_url(message_text)
         if len(clear_url) != 0:
             for single_url in clear_url:
@@ -136,15 +135,26 @@ def conversation(bot, update, user_data):
     else:
         msg = 'Please log in!'
     bot.sendMessage(chat_id=update.message.chat_id, text=msg)
+    
+
+# основная функция по общению с пользователем
+def conversation(bot, update, user_data):
+    text_from_message = update['message']['text']
+    search_and_add_links(bot, update, user_data, text_from_message)
+    
 
 
 
 # обработка всех остальных посылок, которые не текст
-def reply_for_no_text_message(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text.')
-    log_message(update)
-    logging.info('it was no text')
-
+def reply_for_no_text_message(bot, update, user_data):
+    text_from_message = update['message']['caption']
+    if text_from_message != None:
+        search_and_add_links(bot, update, user_data, text_from_message)
+    else:
+        bot.sendMessage(chat_id=update.message.chat_id, text='Sorry, I understand only text.')
+        log_message(update)
+        logging.info('it was no text')
+    
 
 # реакция на неизвестные команды
 def unknown(bot, update):
@@ -168,7 +178,7 @@ def main():
     logout_handler = CommandHandler('logout', logout)
     conversation_handler = MessageHandler(Filters.text, conversation, pass_user_data=True)
     unknown_handler = MessageHandler(Filters.command, unknown)
-    reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message)
+    reply_for_no_text_message_handler = MessageHandler(Filters.all, reply_for_no_text_message, pass_user_data=True)
 
     # dispatchers
     dispatcher.add_handler(start_handler)
